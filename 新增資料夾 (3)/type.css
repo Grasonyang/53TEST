@@ -1,0 +1,56 @@
+.test{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+.row{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+.look{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+.rows{
+    height:220px;
+    width:170px;
+}
+.type-img{
+    height:160px;
+    width:170px;
+    background-color:red;
+}
+.type-link{
+    height:40px;
+    width:170px;
+    background-color:rgb(30, 0, 255);
+}
+.type-name{
+    height:40px;
+    width:170px;
+    background-color:rgb(0, 255, 8);
+}
+.type-intro{
+    height:80px;
+    width:80;
+    background-color:rgb(255, 247, 0);
+}
+.type-date{
+    height:40px;
+    width:170px;
+    background-color:rgb(0, 255, 174);
+}
+.type-fee{
+    height:40px;
+    width:170px;
+    background-color:rgb(255, 0, 200);
+}
+img{
+    height:160px;
+    width:170px;
+}

@@ -1,0 +1,61 @@
+.test{
+  height:220px;
+  width:340px;
+  border:1px solid black;
+  display: flex;
+}
+
+.row{
+  height:220px;
+  width:340px;
+  border:1px solid black;
+  display: flex;
+}
+
+.look{
+  height:220px;
+  width:340px;
+  border:1px solid black;
+  display: flex;
+}
+
+.timg{
+  height:160px;
+  width:170px;
+  background-color: rgb(255, 94, 158);
+}
+
+.timg img{
+  height:160px;
+  width:170px;
+}
+
+.tlink{
+  height:40px;
+  width:170px;
+  background-color: rgb(145, 94, 255);
+}
+.tname{
+  height:40px;
+  width:170px;
+  background-color: rgb(94, 255, 255);
+}
+
+.tintro{
+  height:80px;
+  width:170px;
+  background-color: rgb(94, 255, 94);
+}
+
+.tdate{
+  height:40px;
+  width:170px;
+  background-color: rgb(255, 177, 94);
+}
+
+.tfee{
+  height:40px;
+  width:170px;
+  background-color: rgb(255, 94, 94);
+}
+

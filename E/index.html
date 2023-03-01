@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery-3.6.3.min.js"></script>
+    <script src="jquery-ui.js"></script>
+    <script src="all.js"></script>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="jquery-ui.css">
+    <title>Document</title>
+</head>
+<body>
+    <header id="header">
+        <h1 id="LOGO"></h1>
+        <form id="searchForm">
+            <input type="text" name="search"><br>
+            <input type="submit" value="搜尋">
+        </form>
+    </header>
+    <aside id="aside">
+        <button type="button" id="addStudent" onclick="addstudent()">建立學生</button>
+        <ul class="list" id="studentList">
+            <li class="item">
+                <span class="num"></span>
+            </li>
+        </ul>
+        <ul class="list">
+            <li class="item">
+                <!-- lables -->
+                <!-- <span class="num"></span> -->
+            </li>
+            <li class="item" id="addClass" onclick="addclass()">建立班級</li>
+        </ul>
+        <ul id="trash" class="list">
+            <!-- 垃圾桶 -->
+            <button type="button" id="export_data">匯出資料</button>
+            <button type="button" id="import_data">匯入資料</button>
+        </ul>
+    </aside>
+    <main id="main">
+
+    </main>
+    <div id="dialog">
+        
+    </div>
+    
+</body>
+<script>
+    $("#dialog").dialog({
+        autoOpen:false,
+        height:500,
+        width:500,
+    });
+    
+    $(document).on("submit","form",function(event){
+        event.preventDefault();
+        if($(this).attr('class')=="newClass"){
+            let school=window.indexedDB.open('school',1);
+            school.onsuccess=function(event){
+                let db=event.target.result;
+                let transaction=db.transaction("class","readwrite");
+                let store=transaction.objectStore("class");
+                let data={
+                    classname:$(".newClass input[name='name']").val(),
+                };
+                let request=store.add(data);
+                request.onsuccess=function(){
+                    dialog_close();
+                }
+                request.onerror=function(e){
+                    console.log(e);
+                }
+            }
+        }
+    });
+
+    $(document).on("change",".newStudent .avatar",function(event){
+        let canvas=document.createElement('canvas');
+        let ctx=canvas.getContext('2d');
+        let img=new Image();
+        img.src=this.files[0].name;
+        img.onload=function(e){
+            canvas.width=img.width=150;
+            canvas.height=img.height=150;
+            ctx.drawImage(img,0,0);
+            $(".newStudent .avatar_preview").attr('src',canvas.toDataURL('image/jpeg'));
+        }
+        
+    });
+
+    function dialog_close(){
+        $("#dialog").dialog("close");
+        $("#dialog").empty();
+    }
+
+    function delstdata(text,but){
+        let count=$(".newStudent input[name='"+text+"[]']").length;
+        if(count>1){
+            but.parentNode.remove();
+        }else{
+            alert("至少要有一個資料");
+        }
+    }
+
+    function newstdata(text){
+        if(text=="email"){
+            $(".emails").append(`
+                <div>
+                    <input type="email" required name="email[]">
+                    <button type="button" onclick="delstdata('email',this)">刪除</button>
+                </div>
+            `);
+        }else{
+            $(".phones").append(`
+                <div>
+                    <input type="tel" required name="phone[]">
+                    <button type="button" onclick="delstdata('phone',this)">刪除</button>
+                </div>
+            `);
+        }
+    }
+
+    function classdata(callback){
+        let school=window.indexedDB.open('school',1);
+        school.onsuccess=function(event){
+            let db=event.target.result;
+            let transaction=db.transaction("class","readonly");
+            let store=transaction.objectStore("class");
+            let request=store.getAll();
+            request.onsuccess=function(event){
+                let data=event.target.result;
+                callback(data);
+            }
+            request.onerror=function(e){
+                console.log(e);
+            }
+        }
+    }
+
+    function addstudent(){
+        $("#dialog").empty();
+        $('#dialog').dialog('open');
+        $("#dialog").append(`
+            <h2 class="title">建立學生</h2>
+            <form class="newStudent">
+                大頭貼圖案:<br><img src="" alt="尚未上傳" class="avatar_preview"><br>
+                大頭貼檔案選取欄位:<input type="file" required class="avatar" accept="image/png,image/jpeg"><br>
+                姓氏:<input type="text" required name="last_name"><br>
+                名字:<input type="text" required name="first_name"><br>
+                <div class="emails">
+                    電子郵件:<button type="button" onclick="newstdata('email')">新增</button>
+                    <div>
+                        <input type="email" required name="email[]">
+                        <button type="button" onclick="delstdata('email',this)">刪除</button>
+                    </div>
+                </div>
+                <div class="phones">
+                    電話:<button type="button" onclick="newstdata('phone')">新增</button>
+                    <div>
+                        <input type="tel"  required name="phone[]">
+                        <button type="button" onclick="delstdata('phone',this)">刪除</button>
+                    </div>
+                </div>
+                地址:<input type="text" required name="address"><br>
+                學生班級:<select required name="class"></select><br>
+                備註:<br><textarea required name="note" cols="5" rows="3"></textarea><br>
+                <button type="button" class="close" onclick="dialog_close()">取消</button>
+                <button type="submit" class="submit">儲存</button>
+            </form>
+        `);
+        classdata(function(data){
+            // console.log(data);
+            data.forEach(function(event){
+                console.log(event)
+                $(".newStudent select[name='class']").append(`
+                    <option value="${event.id}">${event.classname}</option>
+                `);
+            });
+        });
+        
+    }
+
+    function addclass(){
+        $("#dialog").empty();
+        $('#dialog').dialog('open');
+        $("#dialog").append(`
+            <h2 class="title">建立班級</h2>
+            <form class="newClass">
+                <input type="text" required name="name"><br>
+                <button type="button" class="close" onclick="dialog_close()">取消</button>
+                <button type="submit" class="submit">儲存</button>
+            </form>
+        `);
+    }
+</script>
+
+</html>

@@ -1,0 +1,60 @@
+.test{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+.row{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+
+.look{
+    height:220px;
+    width:340px;
+    border:1px solid black;
+    display: flex;
+}
+
+
+.timg{
+    height:160px;
+    width: 170px;
+    background-color: rgb(255, 181, 156);
+}
+
+.timg img{
+    height:160px;
+    width: 170px;
+}
+
+.tlk{
+    height:40px;
+    width: 170px;
+    background-color: rgb(255, 240, 156);
+}
+.tname{
+    height:40px;
+    width: 170px;
+    background-color: rgb(179, 255, 156);
+}
+.titr{
+    height:80px;
+    width: 170px;
+    background-color: rgb(171, 156, 255);
+}
+.ttime{
+    height:40px;
+    width: 170px;
+    background-color: rgb(255, 156, 215);
+}
+
+.tfee{
+    height:40px;
+    width: 170px;
+    background-color: rgb(156, 255, 250);
+}
+
+

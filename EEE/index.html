@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="jquery-3.5.1.min.js"></script>
+  <script src="jquery-ui.js"></script>
+  <script src="all.js"></script>
+  <link rel="stylesheet" href="jquery-ui.min.css">
+  <link rel="shortcut icon" href="#">
+  <title>Document</title>
+</head>
+<style>
+  .student .actions {
+    display: none;
+  }
+
+  #main {
+    overflow: auto;
+    height: 700px;
+    width: auto;
+  }
+</style>
+
+<body>
+  <header id="header">
+    <h1 id="logo"></h1>
+    <form id="searchForm" class="searchForm">
+      <input type="text" name="search">
+      <input type="submit" style="display:none">
+    </form>
+  </header>
+  <aside id="aside">
+    <input type="button" id="addStudent" value="新增學生">
+    <ul id="studentList" class="list">
+      <li class="item">學生數量<span class="num"></span></li>
+    </ul>
+    <ul id="classList" class="list">
+      <li id="addClass" class="item">建立班級</li>
+    </ul>
+  </aside>
+  <ul id="trash" class="list">
+    <li>垃圾桶</li>
+  </ul>
+  <input type="button" id="export_data" value="匯出資料">
+  <input type="button" id="import_data" value="匯入資料">
+  <main id="main">
+    <table class="student" border="1">
+      <tr>
+        <td>大頭貼</td>
+        <td>姓名</td>
+        <td>學號</td>
+        <td>電子郵件</td>
+        <td>電話號碼</td>
+        <td>班級</td>
+        <td>地址</td>
+        <td class="actions">功能按鈕區</td>
+      </tr>
+    </table>
+  </main>
+  <div id="dialog">
+
+  </div>
+</body>
+<script>
+  let edid;
+  $("#dialog").dialog({
+    autoOpen: false,
+    height: 500,
+    width: 500,
+  });
+
+  inc_classdata();
+  con_studentdata();
+  ListData();
+  function con_studentdata() {
+    studentdata(function (data) {
+      // console.log(data)
+      $("#studentList .item .num").text(":" + data);
+    }, "indexcount", "in", "delqus");
+  }
+  function inc_classdata() {
+    classdata(function (data) {
+      // console.log(data)
+      $(".cls").remove();
+      for (let i = 0; i < data.length; i++) {
+        $("#classList").append(`
+          <li id="cls_${data[i].classname}" class="cls item current" onclick="theclass('${data[i].classname}')">${data[i].classname}</li>
+        `);
+        studentdata(function (cnt) {
+          $("#cls_" + data[i].classname).append(`<span>:${cnt}</spna>`);
+        }, "indexcount", data[i].classname, "classnames")
+      }
+    }, "getAll");
+  }
+  function ListData() {
+    studentdata(function (data) {
+      $(".new_stu").remove();
+      if (data.length == 0) {
+        $("#main").append(`<span class="nostudent">沒有任何學生</span>`);
+      } else {
+        $("nostudent").remove();
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].delqus == "in") {
+            let emaill = data[i].email;
+            emaill = emaill.split('/')[0];
+            let phonel = data[i].phone;
+            phonel = phonel.split('/')[0];
+            $("#main .student").append(`
+              <tr class="new_stu new_stu${i}">
+                <td class="avatar"><img src="${data[i].avator}" style="height:120px;width:120px;"></td>
+                <td class="fullname">${data[i].name}</td>
+                <td class="student_id">${data[i].id}</td>
+                <td class="email">
+                  <input type="hidden" value="${data[i].email}">
+                  ${emaill}
+                </td>
+                <td class="phone">
+                  <input type="hidden" value="${data[i].phone}">
+                  ${phonel}
+                </td>
+                <td class="class">${data[i].classnames}</td>
+                <td class="address">${data[i].address}</td>
+                <td class="actions">
+                  <button type="button" onclick="edt(${data[i].id})" class="edit">編輯</button>
+                  <button type="button" onclick="del(${data[i].id})" class="delete">刪除</button>
+                </td>
+              </tr>
+            `);
+          }
+
+        }
+      }
+
+    }, "getAll", "", "")
+  }
+
+
+
+
+  // $(document).on('click', "#export_data", function (e) {
+  //   let school = window.indexedDB.open("school", 1);
+  //   school.onsuccess = function (e) {
+  //     let db = e.target.result;
+  //     let ts = db.transaction("student", "readonly");
+  //     let ob = ts.objectStore("student");
+  //     var request = ob.getAll();
+  //     request.onsuccess = function (e) {
+  //       let data = e.target.result;
+
+  //     }
+  //   };
+  // });
+  $(document).on('submit', "form", function (e) {
+    e.preventDefault();
+    if (this.className == "newClass") {
+      data = {
+        classname: $(".newClass [name='name']").val(),
+      };
+      indata(data, "class");
+      inc_classdata();
+    }
+    if (this.className == "newStudent") {
+      let imggg = $(".newStudent .avatar_preview").attr('src');
+      if ($(".newStudent .avatar_preview").attr('src') == "") {
+        imggg = "data:image/jpeg;base64,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";
+      } else {
+        imggg = $(".newStudent .avatar_preview").attr('src');
+      }
+      let emails = "";
+      for (let i = 0; i < $(".newStudent [name='email[]']").length; i++) {
+        emails += $(".newStudent [name='email[]']")[i].value;
+        emails += "/";
+      }
+      let phones = "";
+      for (let i = 0; i < $(".newStudent [name='phone[]']").length; i++) {
+        phones += $(".newStudent [name='phone[]']")[i].value;
+        phones += "/";
+      }
+      console.log($(".newStudent .avatar_preview").attr('src'));
+      data = {
+        avator: imggg,
+        name: $(".newStudent [name='last_name']").val() + "." + $(".newStudent [name='first_name']").val(),
+        email: emails,
+        phone: phones,
+        address: $(".newStudent [name='address']").val(),
+        classnames: $(".newStudent [name='class']").val(),
+        text: $(".newStudent [name='note']").val(),
+        delqus: 'in',
+      };
+      indata(data, "student");
+      inc_classdata();
+      ListData();
+      con_studentdata();
+      // console.log(data);
+      // indata(data, "class");
+    }
+    if (this.className == "editStudent") {
+      let imggg = $(".editStudent .avatar_preview").attr('src');
+      if ($(".editStudent .avatar_preview").attr('src') == "") {
+        let imggg = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAB4AHgDASIAAhEBAxEB/8QAHgAAAgICAwEBAAAAAAAAAAAAAAgGCQUHAQIEAwr/xAA6EAACAQMDAwMCBQIEBAcAAAABAgMEBREABhIHITEIE0EUIhUyQlFhcYEJFiORJDNScoKSk6Gy0dL/xAAbAQABBQEBAAAAAAAAAAAAAAAAAQIDBAUGB//EAC8RAAEEAQMBBgUEAwAAAAAAAAEAAgMRBBIhMQUiMkFRcYETYbHR8AYUkeGhwfH/2gAMAwEAAhEDEQA/ALS9GjRptoRo0aNFoRo0a4JCjJIA/nRaFzo1Hrj1A2ZayFq9w0hJJGISZiCP3CA4/vrxHqvsLOPx3+/003/41GZmDYuH8oUu0ajNH1K2PXS+zDuKnRsE5mDQr/5nAH9s6rc/xWPWnv8A2fueP089Kt02ultVysVJcL3cbXUc6+OWWWbNGzoxEKtCtPLgAOVlBzxcZe14f3TaE7vXz1g9EfTvSyR703PFU3gQyTRWehZZap+IJwwziPJGMuR3I1sXp3v6ydSNupuWwVdNU0czn2paeYSxvGQGjYMO2TGyFh+luS/GqWPSP6UeoPrBo6rc133EaXblsrY4bzeaiX3q6X9TLCjBi7BP1MQBkEBscdXEdC+jGw/T7sSg6X9P6F4aGljFRNPIh92tqCqpJUSsAFMj8FyABjAwAMacSmtJdyFsbRo0aS05GjRo0oQjRo11DqWKggkeR+2kPKF21091OIkDAp5LZ7AfvrpJVQxFRI4Xk3Bc/J1prqJ1Lpy1dYNv3GX2kcU1XUspSNiW7RRHAUjL8S4zkjBPY5illbC3U5HKlm8OrFssTNQ2hFrqsDuwb/SQ/wAkeT/A1qPcG8NwbkkLXW4yPGTkQKeMS9yR9o7ds+Tk/wA6jNuBcO4qG4rjIM3uA578gTjIPfBx3H+w9nkZHfOsiXIfKdzsghdJpo4YnnnkWOONS7u5AVVAySSfAA1jNxX0WC1fi4pvqokkiV0SRVdkdguU5EBm+4YXOW8DJIGotvKlte8am6WuzXCtrbjaKV6O52ijnSBKuKriZVinkkXCqBl+SHmuCQCSFMHttLvC17c2t0p6vz2ncd2uVwoYbZFYqueGeGKh4Tz11VUSuGcRMkf5Y15OY1P/ADcIxrAUKX9RugPTDq9TMu+rPcK/mrNEHutWq0zsuPcji9z21cf9uMjuDqvXrF6M9xdBbnFvPclV+O9PKWvg+tq6DiKyOnecqEMTlRzK8BkNxy4GdWjQVdup50sq3GN6uGnWUwvOGn9oHiJGBPIgkY5HydRTrP0qtXWnpzdOnV6uFVQ0tz9pjUU3EujxyLIhwwII5IMj9s+NSwZDoXAE7JFub0m9S/TZubpfbqf03tb7dZrfAjVdgicpU0Eknc+8jZd3JOC5LZwO+t2JX0tAoleOGKmhVjE/YYg7MSP+lQB4+eHjxqvj06+mWwem243C/wC37xW3S4VdPDAs0hEbxBe7BcH9TgH+Bgd8d2lsfUOnTZtbYatKlayliP0stK6gTKZMlDzyC33EnsQ3jGRg2HdRi+JoVpkLntsLd1Nd6artKXmGOcwSQmdFMZDsmMjC+ckeB/I12s9w/FrTRXX2Gh+tpoqj22OSnNQ3En9xnGonU/Wbg3lBt2jeNdu2qjY10axoyzyuCiQ8sNgKuSVBjcfafuVu03AwMDV9rtXsq5FLnRo0akCRcEgDJ1H9y1RtdLJXxMztIypIisR9rfapAHfPLiM5Hk6z7qrqUcAg9iNaw6p2rc427eKSzBZYrhbam200tRVRxtTVcqYppS7DkFEmVUgluciZHHLIEIJoLWm6upu5rruKa2ojUlupGf3ZDJy5tlgVHHHbscYySc6h0VRLeblzoayf8OVPceVF+yU5KmNT/BXJIz2J/cEYattd92/ddv2+aCtpJrrJLBc6mIxzrDUx4KszSvkQtJyQOVC4lXvllOsXtjflPGsEe6qezwU1ymMMsa1rS8Ix7jOsgMaornhwKB8HL8T9pzl5ULydSgbLRp2ym1HX2mtpWNLU0n00ChnaF1IQD8qsB3Bx8fHjWQienmhSSkdGjOcFRgY1ndl12yKy7F6MztJUPg1AETpkHiAAqYIIA79yM+fB1Jqrp9RzXUw2mT6WKAgTe4nJSxyxIGQD5XI/kazyCrgiLxbTa03ubaN3vKs2yrnR2C9Vk0AqLmKCOaWSGMk+2ckcs+O57AnGDqK9VOkO7qN6LcfSbpxQy79hqucdyipKSJ2LtiUVDOvIxPyYuyMHAJIJyQzI3bZBpIZJ6COOZFjYSBGKNywPgAk9++M/7Y14JJbparxSVM8DtUin4zZj5KEChA/lWbJ7EnAzjGcDTg4tKd8LSe0lJ3Lvfp10Gu1+3r1gMlpul9hhpKm3Gvp7m8qry+yJEX3PbHJvzsVOdT/od1I2F1Q2JFfenN7rrlaqWpmoj9fy+ogdTyET8vuPFHTiSSSpUkk5OpZ1q6cbpue3rlbtnW+1fj9zhkpqS4VcQMdFz7BxxJkLhSSgUdmAye3enCG79ZPTJ1Rqre1RctublsFay1dJIx4SMCMh1yUkjcAd+6spGCRq3FCMlpo0VE5pBoq6IrhgwUc1zx8f7axFfX01nqJ6tqqZgGUziNsPF2J5DP6e5Pb5z/Oot0N6y2TrX04tO+LbwgmqkMVZTkFTDVJ2kQZ8rnuDkjBHc99ZPcVbXSVcyUkMCJLAUErgHIII8DvjP9Nct1XMjx2m+8DXp5/b3W70nCkkkAPdq/X859kynRDf1NuuymiqKkTXCMe+Zix/4iNj2YZJOR4I8Dt4zrYtdcqG2iFq6pWEVEyU8XL9cjnCqP5J0i/Q7f0+2Oolrp6+N6eOlmFHITLwiEUvZuX/AEqOPMZ7fb37kae7hHKFZlVwCGUkA/0I10H6f6keoYx1HtNNe3gf9eyg6zg/spxXddv9130aNGugCx18asM1O4QOTjwhwx/odQTqhFcLJsPcF1o5KSSOKw161X4gvvIxWnkMSuv5THzY88+R57ZxsHUN6syCn2Ld7hVXE26itsAuc1aq+59P9NIk3KSLK+7BiNvdQOjGMOqkFgVBykdwVX11v3TdNi74uFANx+5JZq6ksUtRFQ+w1RQxQiUSsqYUyEgJlcZEX7YA8HTS72va23rrvTdDlZZGrLrTURAAo6YICzJGfyuR389g58cmJXzc+89vpfLJeayaunpoYY2qo3WV2JjQMXJxli7l5D9xC8+AJCgnXe6/VzUXO5XSqt+znmjqYpqZJKqpwojKOico1TwC6sV5d+IGR3Ytmj1AALNijdLIXnhWL9BvULsrdtTS3Kjrv+FZEmkEyKjqrYABycg5IA/fTR0VRS7hutQyV4qYKdBmEJjgT4Kt85wcg/IU/GqGeifWev2/vOhS+3A01pkeMVQp6Mu0gV1ZUCx4IGQD2B7+Qc6sll9WnSb0rbEnqr1Ubhu12reVfQWZQwlqJiuBFJIU9uGL/V55Jz9jEK7fac3IxqI0LVx5PhOEbuE61tqhXO8o9wLCeKrIrK4Pzy+Dr1TUsEkizMOMg+wMPPEkEr/Q4GdVDbK64eon1kdfrLvK67QvUGx7TdYndLLJdxS2aBeeSr0kqs1Q6EKzgZYqCFUZGrTYOqG21jSJbVu0KoChpNtXEnA/djD3/qdQSwmKg5aDJ2O2JUna00OZfbpkjMwUOVXHIDwNJ1/iHemC2dZv8jbzxb6GOwVk1FeaqWRKYmhm4PzebGSsbxsAO+DO5A7nLVRdRtsSsEzc0cqW9uS1VKPxHk8TGDgaQb1zerehslw3BtWC2vdaGWoorJ9NUU81PHAoT6iack4MjnkECjhjAOThg0McxbI0Rbkps0kIGknlfTpJ083L0K6cU/Tm/PZKiaGeaanrbRO09PWwOx4zFj25kYyo8eNS6+Hdi7OZdlm3reZCohNaxMUasw5OQO5whzx+daX6MdeLV1C2fb7RSW64OlkaohlqFiZ41LSF1BBy4yuD25Dzkjxrx7p9S2ztt7juH4jU1EiUdsM9TSQ2+UkVPtoqqjFlBDCVOxCgcSSw7DXCZ+Dkz9Sk0Ms3dVa7XDyIIsCMudW1Xa3Bea54rhTiaVhWTQmlqpaZuIYqobko+PB8/B01EcXVSh2n08a09Q7ZadvGxU61lXW1USTGqMeQ3KQYliwRxUYbivc99Vl7o690LUdgqYa2SCsrLjFTyUrwSJ/pPEyO3LixIBdOwJPkfzp1ejnput/WXbVkvb9Q6o7eSF5ZqYQuldTzM/H6bDu8IQKhdZAoYiQFkwVA1+i4mTiOLQwkuHnp4O/t6LM6xlRZAbvs35XyE8FHx+khKTidSikSqch8j8w/g+dGvDtfbls2ht637Ys6yiitkC08AlkLvxUfLHuTo16Iy9IvlccavZZTUA9QVkuG5eg3Ufb1ojmkr7ntK70dKkAzI00lHKqBR8ksQANT/XDKGUqfBGNHikX5qbltDdkRQS3+ulZ+S4EUpx28dhg51H129f2tk6yVlVGCx5QPFIOZH79vP2k/207vV7p6vTbqVfNjVUMwWxXB46YSlZJHpT3hdmQBctE0ZPYdyRgYwIvU2G2V0T4gALo6+SCCylSe3jsx8fvpxVMTkbFJvZbddpa1YqQ1NNKV5qyIwPEfIx30+vUT0s+ojcdrpvwPp19fBc0jeeuqIYC8iFVKl5cmQr9i/B8/xrWlRtKyWGhqLrP7ZnEXtxe4pYZIxgEDkMj5zp//AENdbI+ouwf8hDcVFQX6wJw/DnpXYiiGFjenLSkFVGAwweLdyMMuauTI6MamhWYNM76KRzp71Y9S/p7uNP0uk3PTWaCa5BEs6U9RDUSHsheFXpsOp4DBHk9++dORZOqHWBViqLtYupdQkmMukhjVf54/SltNbDtCKorlr9yT0t5kgdJaMz2+FTTOB+ZWAznucHPYHHfzrPxsSPujMZ5EAEjuAex7fuO+s+WcyDYAFX24hO+oj89UlPWXb/Vvq5Z6Zdsb13HtUxQPFN9RS1E0sqN5UulMrY/garU9RuxN3bLvLWrcm8Lhe546x4JRPBOgebBcSD3FHLkr/P3dz8Y1fTvXddHsfa1x3VXW+418VviD/SW6lapqqh2YKkcUa92ZmZVHx3ySACdVV+rX1e+nTqHNcqmzbFvNddbtQ0M6Q1cElJNb7lA3L3JWc4Rgsjwkwh+QiI5cW1UgZPBIHs7QJ3FD6/2q02IyN4fq3KVzontTdFdPVVFBua7WARloJPpaSZ2ZuDYyEQ+D2Oe/fUXvu1N1011uYmra2pmijlqal1p5gxVuJYuCowDzGc9v/bW/+jtf1A6s1z0236O87P2zHA8f1dveIVFSSzycXrHCsv8AqEZeKF3wxByO+mLpendj2xma221ZIKehkghWR2kdVJyELuSzL3OB+kKAO2NVMvq0uBkuL2gk1sK29TXPy3WtAzHnhDS6tPJ3/wAC/skEOy93ym387ncZhNJ7Ub/SzEQucEHJX9u/bv21dR/h09It5dNej34zvK5TVU25oqappROD7wp1Mroz58clmGB5AX+dJ3bbO+7aq07Q23ZkkuFXVokCArlpycIQzflxnOcgD+2mk6K9D/UBHv8A27UdSJL5DbNq1iNDLU3pKmmjhjiDLBHByJIY+0vNW4rxYFSR9smD1GbMla90R2Ph5naya8rUGQYmNLIjYNJ0NGjRrqws1GusgZkZUfixBAbGcH99dtGkQq4/8TbpV1pqqmk6pbAoLN9BaqOChuVY5ENTUs5IUgM3FyrDwACOQxy+FB6f2242Db1NbLzXNU3AZedjMZBzY5bBPfA/+8aug609JrP1q2DW7EvddWUcNQ6TxzUrKrLNHkpnkrAryxkYyR4I86rT6++m2/dALxaRd75Q3Snu1OZIpqb7Ssq4EiMh+4AEjDeGH8ggO5VPIa4bgbLSm9ZYFtCNMnM+6AuQSBkHv21GdvXrcWxK+3722hfpqCupqg+xUU7cXiYeAf3BA7g9iPOpRudYxaap54zOgX7U8Yb4ORrB7foaS7WA0VcgJgldYj+Vw3EE479+5P8AsO2mkXyoWO0iwnp6K/4j+17+sFj6v2SSzXD7I/xKhQy00pwMs6fmTwSePIdwANMRb/UX0NvlOtfQ7/oJkimKIfamVvc498KUBOFfvgHAOfjVQNks80V0WEyZlWNjIhGArYBwD89sa3RstoLdQ0y1lWsLPWSSQQnHKVvpyjcf/UUn+mqcuKwMLxyo8rr+RiyCMAEUOf8AqeDqr6o9tSbBusfRy9Lddz1tvka0S+xJHAkp7B2aRQO3c4wfHxqvKx9CNs1tqp363iS970vdxaqq6o1eJIhIRxjQ5wUBHjA7l8dl1L9tWq52Lc8dDFcGZ4oFU8Iiw48+6nA7jH6iM/yNZ7ettT/MO2rgkdN9WteoeURMrSKASAxXI7YAGQe57FRkGlK0xyBjHbEXY54+iyZ+t5WUzW8BpBHHrv5qRbMsdDtmie2W5JxS0oSnhE2MhEXAxjHbv51nppPfjMaAhpEPYqSMeMH4+dfCGqWWFZYsSI2QGTwcefn+MalXSLZsPUK+CpuVVT2q3UqrNXT1VQseKfuwAXl3YgMB8+fA1y8sD8mXYdorZwpiGaQb/vdbj9JfRSyw1EnUu5WREeEmG1818H9coyf/AAg/HfHnTVaWSn9a3R2wQ11k2vtW+VNq27T8hLSRwJE0KukYaNXkVm+517Yye5/c6Yfa1/pd2bZtG6aKGWGnvFBT3CGOYAOiSxq6q2CRkBgDgkZ11/TRBDEIYXWRytOyeVlNGjRrTCEaNcN41wD8aSkLyXi1U17t8ttq3nSKUqWaGUxuOLBhhh3HcD+2oJ1C6M7c35vXbu7Lnbqao+jiq7XdIZow61lump5QIznwVnMbqRgj7u/fWyNGhIQDyq/fUF6Cr1aVqb50kilvNqZcyWiSTNVEACSUYke4O3j837Z8aUJ9mXHa4elu1oraV46uWFhVU7RGOojC84sEDDKGTkvkchnzq7/Se+s/pl1Q6gdSNlnbGwV3DYKaJPf4wDAmM59xJpUKypEYzH2DqPzEYIzpRuqssIAtqrrETvuDjTUhaSOJmJQHPEjuT/T99T+02youKWZEAZkrGmPBebLHxAY/uO8gB7fAPjy83VD0CdGZ7beN1bQkvlhuFLbZWpqWCs96kLopb7llDSNyxj/mYHkD4MSsHpF2Kbm9Hcb9uOlpLZVUEsMaTIrSPU189KOR4fCUyFWAHeVj47aZILbQ/NliZ+BNLKCB4JcqWhih3jMJJplZRGqEydmBUkjJHyfjOpZUWD8Zq6WWloPq66nJ+ljCklmJB49snuVX4+NMNsf019Krtu+m/wAy0t3uULtP9HBNVlIiYHZSxaMK5PZf1YJ8g62X006Z2GSO609ts34ZBbN1XSleZZXWompPp3hRY5R94CmUY+490Zs5ONZkmK+RzXX4UooOmyu2dVErSHTz0zbp3/YILlVX+isaVccdRFEuZJHjEn3kKpBRWwwBznv41EutPo+6rp1AulZsba8t+sk7xpbJRXRRyUsapGzh1dlz97SIpySQrE9yCXnse1ksF0pxRNM9FSWqKgiaeYySErIx7lu57H+nwMDtqR6U9Mhki0OFHzC6DGxGY4scpEOi/ob3Xc7lBeerKi0UFPKsn4dHKks9QVcEq5XKqhA+CT3+Maeunp4KSCOlpYUhhhQRxxooVUUDAAA7AAfGvpo1ZxMOLDbpjHv4q2jRo0auBC4IzoAxo0aKQudGjRopCNGjRopC6uiyKUdQysMEEZBH7awVy2dQ3O6TXWSomR5hbQUXHEfRVMk8eO3y0hB/gDGNGjRpBSEA8r0WHbVBYaGno4gZ2ppKiSKaVRzX3pGkcA/Ay2P6Aa9dqoFt1PJAowHqJ5/Oe8krOf8A5aNGiggNA4Xs0aNGikqNGjRopCNGjRpUL//Z";
+        imggg = $(".editStudent .avatar_preview").attr('src');
+      }
+      let emails = "";
+      for (let i = 0; i < $(".editStudent [name='email[]']").length; i++) {
+        emails += $(".editStudent [name='email[]']")[i].value;
+        emails += "/";
+      }
+      let phones = "";
+      for (let i = 0; i < $(".editStudent [name='phone[]']").length; i++) {
+        phones += $(".editStudent [name='phone[]']")[i].value;
+        phones += "/";
+      }
+      console.log($(".editStudent .avatar_preview").attr('src') == "");
+      data = {
+        id: edid,
+        avator: imggg,
+        name: $(".editStudent [name='last_name']").val() + "." + $(".editStudent [name='first_name']").val(),
+        email: emails,
+        phone: phones,
+        address: $(".editStudent [name='address']").val(),
+        classnames: $(".editStudent [name='class']").val(),
+        text: $(".editStudent [name='note']").val(),
+        delqus: 'in',
+      };
+      // console.log(data);
+      edtdata(data, "student");
+      inc_classdata();
+      ListData();
+      con_studentdata();
+    }
+    if (this.className == "searchForm") {
+      let fd = $(".searchForm [name='search']").val();
+      for (let i = 0; i < $(".fullname").length; i++) {
+        let text = $(".fullname")[i];
+        let rep = '<span style="color:yellow;">' + fd + '</span>';
+
+        let reh = text.innerHTML.replace(new RegExp('g'), rep);
+        console.log(reh)
+        // $(".fullname")[i].innerHTML = reh;
+      }
+    }
+  });
+  $(document).on('click', ".close", function () {
+    $("#dialog").dialog("close");
+  });
+  $(document).on('click', "#addClass", function () {
+    $("#dialog").empty();
+    $("#dialog").dialog("open");
+    $("#dialog").append(`
+      <h2 class="title">建立班級</h2>
+      <form class="newClass">
+        <input type="text" required placeholder="班級名稱" name="name"><br>
+        <input type="button" class="close" value="取消">
+        <input type="submit" class="submit" value="儲存">
+      </form>
+    `);
+  });
+  $(document).on('click', "#addStudent", function () {
+    $("#dialog").empty();
+    $("#dialog").dialog("open");
+    $("#dialog").append(`
+      <h2 class="title">建立學生</h2>
+      <form class="newStudent">
+        大頭貼圖案:<br><img src="" class="avatar_preview" alt="未上傳" style="height:150px;width:150px"><br>
+        大頭貼檔案: <input type="file" accept="image/png,image/jpeg" class="avatar"><br>
+        姓氏: <input type="text" name="last_name"><br>
+        名字: <input type="text" name="first_name"><br>
+        電子郵件: <input type="button" onclick="new1('e')" value="新增">
+        <div class="emails">
+          <div>
+            <input type="email" name="email[]">
+            <input type="button" onclick="this.parentElement.remove();" value="刪除">
+          </div>
+        </div>
+        電話: <input type="button" onclick="new1('p')" value="新增">
+        <div class="phones">
+          <div>
+            <input type="tel" name="phone[]">
+            <input type="button" onclick="this.parentElement.remove();" value="刪除">
+          </div>
+        </div>
+        地址: <input type="text" name="address"><br>
+        學生班級: <select name="class" id=""></select><br>
+        備註: <textarea name="note" id="" cols="5" rows="1"></textarea><br>
+        <input type="button" class="close" value="取消">
+        <input type="submit" class="submit" value="儲存">
+      </form>
+    `);
+    classdata(function (data) {
+      for (let i = 0; i < data.length; i++)
+        $(".newStudent [name='class']").append(`
+        <option value="${data[i].classname}">${data[i].classname}</option>
+      `);
+      // console.log(data);
+    }, "getAll");
+  });
+
+  $(document).on('mouseenter', ".student", function () {
+    $(".actions").show();
+  });
+  $(document).on('mouseleave', ".student", function () {
+    $(".actions").hide();
+  });
+  $(document).on('change', '.newStudent .avatar', function () {
+    let canvas = document.createElement('canvas');
+    canvas.height = 120;
+    canvas.width = 120;
+    let ctx = canvas.getContext('2d');
+    let img = new Image();
+    img.src = this.files[0].name;
+    img.onload = function () {
+      let aspectRatio = img.width / img.height;
+      let newWidth, newHeight;
+      if (aspectRatio > 1) {
+        newWidth = 120;
+        newHeight = 120 / aspectRatio;
+      } else {
+        newWidth = 120 * aspectRatio;
+        newHeight = 120;
+      }
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+      $(".newStudent .avatar_preview").attr('src', canvas.toDataURL("image/jpeg"));
+    };
+  });
+
+
+  function edtdata(data, text) {
+    let school = window.indexedDB.open("school", 1);
+    school.onsuccess = function (e) {
+      let db = e.target.result;
+      let ts = db.transaction(text, "readwrite");
+      let store = ts.objectStore(text);
+      store.put(data);
+      $("#dialog").dialog("close");
+    };
+  }
+
+  function indata(data, text) {
+    let school = window.indexedDB.open("school", 1);
+    school.onsuccess = function (e) {
+      let db = e.target.result;
+      let ts = db.transaction(text, "readwrite");
+      let store = ts.objectStore(text);
+      store.add(data);
+      $("#dialog").dialog("close");
+    };
+  }
+
+  function classdata(data, text) {
+    let school = window.indexedDB.open("school", 1);
+    school.onsuccess = function (e) {
+      let db = e.target.result;
+      let ts = db.transaction("class", "readonly");
+      let store = ts.objectStore("class");
+      if (text == "getAll") {
+        let datas = store.getAll();
+        datas.onsuccess = function (e) {
+          data(e.target.result);
+        }
+      }
+    };
+  }
+
+  function studentdata(data, text, what, which) {
+    // console.log(text, what, which)
+    let school = window.indexedDB.open("school", 1);
+    school.onsuccess = function (e) {
+      let db = e.target.result;
+      let ts = db.transaction("student", "readonly");
+      if (text == "getAll") {
+        let store = ts.objectStore("student");
+        let datas = store.getAll();
+        datas.onsuccess = function (e) {
+          data(e.target.result);
+        }
+      }
+      if (text == "indexcount") {
+        let store = ts.objectStore("student");
+        let datas = store.index(which);
+        let res = datas.count(what);
+        res.onsuccess = function (e) {
+          // console.log(e.target.result)
+          data(e.target.result);
+        }
+      }
+      if (text == "count") {
+        let store = ts.objectStore("student");
+        let datas = store.count();
+        datas.onsuccess = function (e) {
+          // console.log(e.target.result)
+          data(e.target.result);
+        }
+      }
+      if (text == "indexget") {
+        let store = ts.objectStore("student", "readonly");
+        let datas = store.index();
+        let res = datas.getAll(what);
+        res.onsuccess = function (e) {
+          // console.log(e.target.result)
+          data(e.target.result);
+        }
+      }
+      if (text == "get") {
+        let store = ts.objectStore("student", "readonly");
+        let datas = store.get(what);
+        datas.onsuccess = function (e) {
+          // console.log(e.target.result)
+          data(e.target.result);
+        }
+      }
+    };
+  }
+
+  function del(id) {
+    console.log(id)
+    let school = window.indexedDB.open("school", 1);
+    school.onsuccess = function (e) {
+      let db = e.target.result;
+      let ts = db.transaction("student", "readwrite");
+      let store = ts.objectStore("student");
+      let res = store.put({ id: id, delqus: "out" });
+      ListData();
+    };
+  }
+
+  function edt(id) {
+    edid = id;
+    studentdata(function (data) {
+      let ln = data.name.split(".")[0];
+      let fn = data.name.split(".")[1];
+      $("#dialog").empty();
+      $("#dialog").dialog("open");
+      $("#dialog").append(`
+        <h2 class="title">編輯學生</h2>
+        <form class="editStudent">
+          大頭貼圖案:<br><img src="${data.avator}" class="avatar_preview" alt="未上傳" style="height:150px;width:150px"><br>
+          大頭貼檔案: <input type="file" accept="image/png,image/jpeg" class="avatar"><br>
+          姓氏: <input type="text" required value="${ln}" name="last_name"><br>
+          名字: <input type="text" required value="${fn}" name="first_name"><br>
+          電子郵件: <input type="button" onclick="new1('e')" value="新增">
+          <div class="emails">
+          </div>
+          電話: <input type="button" onclick="new1('p')" value="新增">
+          <div class="phones">
+          </div>
+          地址: <input type="text" value="${data.address}" name="address"><br>
+          學生班級: <select name="class" id=""></select><br>
+          備註: <textarea name="note" id="" value="${data.text}" cols="5" rows="1"></textarea><br>
+          <input type="button" class="close" value="取消">
+          <input type="submit" class="submit" value="儲存">
+        </form>
+      `);
+      classdata(function (data1) {
+        for (let i = 0; i < data1.length; i++)
+          $(".editStudent [name='class']").append(`
+        <option value="${data1[i].classname}">${data1[i].classname}</option>
+      `);
+      }, "getAll");
+      $(".editStudent [name='class']").val(data.classnames);
+
+      let emailll = data.email.split('/');
+      for (let i = 0; i < emailll.length - 1; i++) {
+        $(".editStudent .emails").append(`
+          <div>
+            <input type="email" value="${emailll[i]}" name="email[]">
+            <input type="button" onclick="this.parentElement.remove();" value="刪除">
+          </div>
+        `);
+      }
+      let phonell = data.phone.split('/');
+      for (let i = 0; i < phonell.length - 1; i++) {
+        $(".editStudent .phones").append(`
+          <div>
+            <input type="phone" value="${phonell[i]}" name="phone[]">
+            <input type="button" onclick="this.parentElement.remove();" value="刪除">
+          </div>
+        `);
+      } console.log(emailll, phonell);
+      console.log(data);
+    }, "get", id, "");
+  }
+
+  function theclass(id) {
+    studentdata(function (data) {
+      $(".new_stu").remove();
+      if (data.length == 0) {
+        $("#main").append(`<span class="nostudent">沒有任何學生</span>`);
+      } else {
+        $("nostudent").remove();
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].delqus == "in") {
+            let emaill = data[i].email;
+            emaill = emaill.split('/')[0];
+            let phonel = data[i].phone;
+            phonel = phonel.split('/')[0];
+            $("#main .student").append(`
+          <tr class="new_stu">
+            <td class="avatar"><img src="${data[i].avator}" style="height:120px;width:120px;"></td>
+            <td class="fullname">${data[i].name}</td>
+            <td class="student_id">${data[i].id}</td>
+            <td class="email">
+              <input type="hidden" value="${data[i].email}">
+              ${emaill}
+            </td>
+            <td class="phone">
+              <input type="hidden" value="${data[i].phone}">
+              ${phonel}
+            </td>
+            <td class="class">${data[i].classnames}</td>
+            <td class="address">${data[i].address}</td>
+            <td class="actions">
+              <button type="button" onclick="edt()" class="edit">編輯</button>
+              <button type="button" onclick="del(${data[i].id})" class="delete">刪除</button>
+            </td>
+          </tr>
+        `);
+          }
+
+        }
+      }
+
+    }, "indexget", id, "classnames")
+  }
+
+
+  function new1(text) {
+    if (text == 'e') {
+      $(".newStudent .emails").append(`
+        <div>
+          <input type="email" name="email[]">
+          <input type="button" onclick="this.parentElement.remove();" value="刪除">
+        </div>
+      `);
+    } else {
+      $(".newStudent .phones").append(`
+        <div>
+          <input type="tel" name="phone[]">
+          <input type="button" onclick="this.parentElement.remove();" value="刪除">
+        </div>
+      `);
+    }
+  }
+
+  // studentcount();
+
+</script>
+
+</html>

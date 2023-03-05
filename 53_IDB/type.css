@@ -1,0 +1,70 @@
+.test{
+  height:220px;
+  width:340px;
+  display: flex;
+  border: 1px solid black;
+}
+
+
+.row{
+  height:220px;
+  width:340px;
+  display: flex;
+  border: 1px solid black;
+}
+
+.look{
+  height:220px;
+  width:340px;
+  display: flex;
+  border: 1px solid black;
+}
+
+
+.trows{
+  height:220px;
+  width:170px;
+  overflow: auto;
+}
+
+.timg{
+  height:160px;
+  width:170px;
+  background-color: aqua;
+}
+
+.timg img{
+  height:160px;
+  width:170px;
+}
+
+.tlink{
+  height:40px;
+  width:170px;
+  overflow: auto;
+  background-color: rgb(0, 255, 0);
+}
+.tname{
+  height:40px;
+  width:170px;
+  overflow: auto;
+  background-color: rgb(221, 255, 0);
+}
+.tintro{
+  height:80px;
+  width:170px;
+  overflow: auto;
+  background-color: rgb(255, 38, 0);
+}
+.tdate{
+  height:40px;
+  width:170px;
+  overflow: auto;
+  background-color: rgb(0, 208, 255);
+}
+.tfee{
+  height:40px;
+  width:170px;
+  overflow: auto;
+  background-color: rgb(255, 0, 128);
+}

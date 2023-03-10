@@ -1,0 +1,67 @@
+.test{
+    height:220px;
+    width:340px;
+    display:flex;
+    border:1px solid black;
+}
+
+.look{
+    height:220px;
+    width:340px;
+    display:flex;
+    border:1px solid black;
+}
+
+.row{
+    height:220px;
+    width:340px;
+    display:flex;
+    border:1px solid black;
+}
+
+.rows{
+    height:220px;
+    width:170px;
+}
+
+.timg{
+    height:160px;
+    width:170px;
+    background-color: rgb(255, 182, 205);
+}
+
+.timg img{
+    height:160px;
+    width:170px;
+}
+
+.tname{
+    height:40px;
+    width:170px;
+    background-color: rgb(108, 186, 255);
+}
+
+.tfee{
+    height:40px;
+    width:170px;
+    background-color: rgb(200, 182, 124);
+}
+
+.tintro{
+    height:80px;
+    width:170px;
+    background-color: rgb(250, 0, 0);
+}
+
+.tdate{
+    height:40px;
+    width:170px;
+    background-color: rgb(75, 208, 117);
+    overflow:hidden;
+}
+
+.tlink{
+    height:40px;
+    width:170px;
+    background-color: rgb(203, 140, 239);
+}

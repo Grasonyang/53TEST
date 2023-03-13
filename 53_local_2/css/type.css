@@ -1,0 +1,71 @@
+.test{
+    height:220px;
+    width:340px;
+    display: flex;
+    border:1px solid black;
+}
+
+.thetype{
+    height:220px;
+    width:340px;
+    display: flex;
+    border:1px solid black;
+}
+
+.row{
+    height:220px;
+    width:340px;
+    display: flex;
+    border:1px solid black;
+}
+
+.look{
+    height:220px;
+    width:340px;
+    display: flex;
+    border:1px solid black;
+}
+
+.rows{
+    height:220px;
+    width:170px;
+}
+
+
+
+.timg{
+    height:160px;
+    width:170px;
+    background-color: rgba(0, 255, 255, 0.781);
+}
+
+.timg img{
+    height:160px;
+    width:170px;
+}
+
+.tlink{
+    height:40px;
+    width:170px;
+    background-color: rgba(0, 60, 255, 0.781);
+}
+.tname{
+    height:40px;
+    width:170px;
+    background-color: rgba(212, 0, 255, 0.781);
+}
+.tintro{
+    height:80px;
+    width:170px;
+    background-color: rgba(81, 255, 0, 0.781);
+}
+.tdate{
+    height:40px;
+    width:170px;
+    background-color: rgba(255, 123, 0, 0.781);
+}
+.tfee{
+    height:40px;
+    width:170px;
+    background-color: rgba(255, 0, 0, 0.781);
+}

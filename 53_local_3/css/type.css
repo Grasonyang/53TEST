@@ -1,0 +1,64 @@
+.test{
+    height:220px;
+    width:340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.look{
+    height:220px;
+    width:340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.row{
+    height:220px;
+    width:340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.rows{
+    height:220px;
+    width:170px;
+}
+
+.timg{
+    height: 160px;
+    width: 170px;
+    background-color: rgba(168, 214, 255, 0.911);
+}
+
+.timg img{
+    height: 160px;
+    width: 170px;
+}
+
+.tname{
+    height: 40px;
+    width: 170px;
+    background-color: rgba(213, 168, 255, 0.911);
+}
+.tfee{
+    height: 40px;
+    width: 170px;
+    background-color: rgba(255, 168, 216, 0.911);
+}
+.tintro{
+    height: 80px;
+    width: 170px;
+    background-color: rgba(168, 255, 214, 0.911);
+}
+
+.tdate{
+    height: 40px;
+    width: 170px;
+    background-color: rgba(249, 255, 168, 0.911);
+}
+
+.tlink{
+    height: 40px;
+    width: 170px;
+    background-color: rgba(255, 185, 168, 0.911);
+}

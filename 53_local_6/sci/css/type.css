@@ -1,0 +1,67 @@
+.test{
+    height:220px;
+    width: 340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.row{
+    height:220px;
+    width: 340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.look{
+    height:220px;
+    width: 340px;
+    display: flex;
+    border: 1px solid black;
+}
+
+.rows{
+    height:220px;
+    width: 170px;
+}
+
+.t-img{
+    height:160px;
+    width:170px;
+    background-color: rgb(162, 211, 255);
+}
+
+.t-img img{
+    height:160px;
+    width:170px;
+}
+
+.t-link{
+    height:40px;
+    width:170px;
+    background-color: rgb(213, 162, 255);
+}
+
+.t-name{
+    height:40px;
+    width:170px;
+    background-color: rgb(255, 162, 208);
+}
+
+.t-intro{
+    height:80px;
+    width:170px;
+    background-color: rgb(165, 255, 162);
+}
+
+.t-date{
+    height:40px;
+    width:170px;
+    background-color: rgb(255, 218, 162);
+}
+
+.t-fee{
+    height:40px;
+    width:170px;
+    background-color: rgb(162, 255, 232);
+}
+
